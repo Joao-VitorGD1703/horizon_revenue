@@ -44,44 +44,39 @@ const chartData = computed(() => {
     return { labels: [], datasets: [] }
   }
 
-  // Assuming columns: Data, Meu Preço, Concorrente A, Concorrente B
   const labels = props.dataset.map(row => row.Data)
   
-  const myPrice = props.dataset.map(row => row['Meu Preço'])
-  const compA = props.dataset.map(row => row['Concorrente A'])
-  const compB = props.dataset.map(row => row['Concorrente B'])
+  // Extract all keys except 'Data' and 'Meu Preço'
+  const competitors = Object.keys(props.dataset[0]).filter(k => k !== 'Data' && k !== 'Meu Preço')
 
-  return {
-    labels,
-    datasets: [
-      {
-        label: 'Meu Preço',
-        data: myPrice,
-        borderColor: '#dc2626', // Primary Red
-        backgroundColor: '#dc2626',
-        borderWidth: 3,
-        tension: 0.4
-      },
-      {
-        label: 'Concorrente A',
-        data: compA,
-        borderColor: '#9ca3af', // Gray 400
-        backgroundColor: '#9ca3af',
-        borderWidth: 1.5,
-        tension: 0.4,
-        borderDash: [5, 5]
-      },
-      {
-        label: 'Concorrente B',
-        data: compB,
-        borderColor: '#60a5fa', // Blue 400
-        backgroundColor: '#60a5fa',
-        borderWidth: 1.5,
-        tension: 0.4,
-        borderDash: [5, 5]
-      }
-    ]
-  }
+  // Colors mapping for dynamically assigned competitors
+  const compColors = ['#9ca3af', '#60a5fa', '#34d399', '#fbbf24', '#a78bfa', '#f472b6', '#fb923c']
+
+  const datasets = [
+    {
+      label: 'Meu Preço',
+      data: props.dataset.map(row => row['Meu Preço']),
+      borderColor: '#dc2626', // Primary Red
+      backgroundColor: '#dc2626',
+      borderWidth: 3,
+      tension: 0.4
+    }
+  ]
+
+  competitors.forEach((comp, index) => {
+    const color = compColors[index % compColors.length]
+    datasets.push({
+      label: comp,
+      data: props.dataset.map(row => row[comp]),
+      borderColor: color,
+      backgroundColor: color,
+      borderWidth: 1.5,
+      tension: 0.4,
+      borderDash: [5, 5]
+    })
+  })
+
+  return { labels, datasets }
 })
 
 const chartOptions = {

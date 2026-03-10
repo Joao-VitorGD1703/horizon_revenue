@@ -10,14 +10,36 @@
 
       <!-- Main Chart Area -->
       <div class="bg-white p-6 border border-gray-200 shadow-sm w-full min-h-[500px] flex flex-col mb-6">
-        <div class="flex justify-between items-center mb-6">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <h2 class="text-xl font-bold text-gray-800">Comparativo de Preços</h2>
-          <router-link to="/docs" class="text-gray-500 hover:text-primaryRed text-sm font-medium transition-colors">
+          
+          <!-- Month View Pagination Controls -->
+          <div v-if="revenueData.length > 0" class="flex flex-1 justify-center items-center space-x-4">
+            <button 
+              @click="prevPage" 
+              :disabled="currentPage === 0"
+              class="px-3 py-1 text-sm bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300 rounded-none shadow-sm transition-colors"
+            >
+              &larr; Anterior
+            </button>
+            <span class="text-sm font-medium text-gray-600 min-w-[180px] text-center">
+              {{ periodLabel }}
+            </span>
+            <button 
+              @click="nextPage" 
+              :disabled="(currentPage + 1) * 30 >= revenueData.length"
+              class="px-3 py-1 text-sm bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300 rounded-none shadow-sm transition-colors"
+            >
+              Próximo &rarr;
+            </button>
+          </div>
+
+          <router-link to="/docs" class="text-gray-500 hover:text-primaryRed text-sm font-medium transition-colors whitespace-nowrap">
             Formatação do CSV &rarr;
           </router-link>
         </div>
         <div class="flex-1">
-          <RevenueChart :dataset="revenueData" class="h-full min-h-[400px]" />
+          <RevenueChart :dataset="paginatedChartData" class="h-full min-h-[400px]" />
         </div>
       </div>
 
@@ -63,6 +85,33 @@ import { supabase } from '@/lib/supabaseClient'
 const revenueData = ref([])
 const isTrialUser = ref(true)
 
+// Pagination State
+const currentPage = ref(0)
+const itemsPerPage = 30
+
+const paginatedChartData = computed(() => {
+  const start = currentPage.value * itemsPerPage
+  const end = start + itemsPerPage
+  return revenueData.value.slice(start, end)
+})
+
+const periodLabel = computed(() => {
+  if (paginatedChartData.value.length === 0) return ''
+  const first = paginatedChartData.value[0].Data
+  const last = paginatedChartData.value[paginatedChartData.value.length - 1].Data
+  return `${first} a ${last}`
+})
+
+const prevPage = () => {
+  if (currentPage.value > 0) currentPage.value--
+}
+
+const nextPage = () => {
+  if ((currentPage.value + 1) * itemsPerPage < revenueData.value.length) {
+    currentPage.value++
+  }
+}
+
 const competitors = computed(() => {
   if (revenueData.value.length === 0) return []
   return Object.keys(revenueData.value[0]).filter(k => k !== 'Data' && k !== 'Meu Preço')
@@ -107,5 +156,6 @@ onMounted(async () => {
 
 const handleDataParsed = (data) => {
   revenueData.value = data
+  currentPage.value = 0 // Resetar para a primeira página (primeiro mês) ao subir novo CSV
 }
 </script>
