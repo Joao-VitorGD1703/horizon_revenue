@@ -1,0 +1,120 @@
+<template>
+  <div class="w-full h-full min-h-[400px]">
+    <Line v-if="chartData.labels.length > 0" :data="chartData" :options="chartOptions" />
+    <div v-else class="text-gray-400 bg-gray-50 text-sm flex items-center justify-center h-full border-2 border-dashed border-gray-200 rounded-xl">
+      Nenhum dado para visualizar.
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { computed } from 'vue'
+import { Line } from 'vue-chartjs'
+import {
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  LineElement,
+  PointElement,
+  CategoryScale,
+  LinearScale
+} from 'chart.js'
+
+ChartJS.register(
+  Title,
+  Tooltip,
+  Legend,
+  LineElement,
+  PointElement,
+  CategoryScale,
+  LinearScale
+)
+
+const props = defineProps({
+  dataset: {
+    type: Array,
+    required: true,
+    default: () => []
+  }
+})
+
+const chartData = computed(() => {
+  if (!props.dataset || props.dataset.length === 0) {
+    return { labels: [], datasets: [] }
+  }
+
+  // Assuming columns: Data, Meu Preço, Concorrente A, Concorrente B
+  const labels = props.dataset.map(row => row.Data)
+  
+  const myPrice = props.dataset.map(row => row['Meu Preço'])
+  const compA = props.dataset.map(row => row['Concorrente A'])
+  const compB = props.dataset.map(row => row['Concorrente B'])
+
+  return {
+    labels,
+    datasets: [
+      {
+        label: 'Meu Preço',
+        data: myPrice,
+        borderColor: '#dc2626', // Primary Red
+        backgroundColor: '#dc2626',
+        borderWidth: 3,
+        tension: 0.4
+      },
+      {
+        label: 'Concorrente A',
+        data: compA,
+        borderColor: '#9ca3af', // Gray 400
+        backgroundColor: '#9ca3af',
+        borderWidth: 1.5,
+        tension: 0.4,
+        borderDash: [5, 5]
+      },
+      {
+        label: 'Concorrente B',
+        data: compB,
+        borderColor: '#60a5fa', // Blue 400
+        backgroundColor: '#60a5fa',
+        borderWidth: 1.5,
+        tension: 0.4,
+        borderDash: [5, 5]
+      }
+    ]
+  }
+})
+
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      labels: {
+        color: '#4b5563' // text-gray-600
+      }
+    },
+    tooltip: {
+      mode: 'index',
+      intersect: false,
+    }
+  },
+  scales: {
+    x: {
+      grid: {
+        color: '#f3f4f6' // gray-100
+      },
+      ticks: {
+        color: '#6b7280' // text-gray-500
+      }
+    },
+    y: {
+      grid: {
+        color: '#f3f4f6'
+      },
+      ticks: {
+        color: '#6b7280'
+      }
+    }
+  }
+}
+</script>
