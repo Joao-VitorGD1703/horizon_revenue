@@ -30,8 +30,7 @@
               <tr class="border-b-2 border-gray-100 text-gray-700 bg-gray-50">
                 <th class="p-3 font-semibold whitespace-nowrap">Data</th>
                 <th class="p-3 font-semibold text-primaryRed">Meu Preço</th>
-                <th class="p-3 font-semibold text-gray-500">Concorrente A</th>
-                <th class="p-3 font-semibold text-blue-500">Concorrente B</th>
+                <th v-for="comp in competitors" :key="comp" class="p-3 font-semibold text-gray-500">{{ comp }}</th>
               </tr>
             </thead>
             <tbody class="text-sm text-gray-600">
@@ -41,9 +40,8 @@
                 class="border-b border-gray-100 hover:bg-gray-50 transition-colors"
               >
                 <td class="p-3 font-medium">{{ row.Data }}</td>
-                <td class="p-3 font-bold text-gray-900">R$ {{ row['Meu Preço'] }}</td>
-                <td class="p-3">R$ {{ row['Concorrente A'] }}</td>
-                <td class="p-3">R$ {{ row['Concorrente B'] }}</td>
+                <td class="p-3 font-bold" :class="getPriceClass(row)">R$ {{ row['Meu Preço'] }}</td>
+                <td v-for="comp in competitors" :key="comp" class="p-3">R$ {{ row[comp] }}</td>
               </tr>
             </tbody>
           </table>
@@ -56,7 +54,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import RevenueChart from '@/components/RevenueChart.vue'
 import UploadDropzone from '@/components/UploadDropzone.vue'
 import AiInsightsModal from '@/components/AiInsightsModal.vue'
@@ -64,6 +62,30 @@ import { supabase } from '@/lib/supabaseClient'
 
 const revenueData = ref([])
 const isTrialUser = ref(true)
+
+const competitors = computed(() => {
+  if (revenueData.value.length === 0) return []
+  return Object.keys(revenueData.value[0]).filter(k => k !== 'Data' && k !== 'Meu Preço')
+})
+
+const getPriceClass = (row) => {
+  const myPrice = Number(row['Meu Preço'])
+  if (isNaN(myPrice)) return 'text-gray-900'
+
+  const compPrices = competitors.value.map(c => Number(row[c])).filter(p => !isNaN(p))
+  if (compPrices.length === 0) return 'text-gray-900'
+
+  const avgPrice = compPrices.reduce((a, b) => a + b, 0) / compPrices.length
+  const percentDiff = (myPrice - avgPrice) / avgPrice
+
+  if (percentDiff > 0.20) {
+    return 'text-blue-600'
+  } else if (percentDiff < -0.15) {
+    return 'text-red-600'
+  } else {
+    return 'text-green-600'
+  }
+}
 
 onMounted(async () => {
   const { data: { session } } = await supabase.auth.getSession()
