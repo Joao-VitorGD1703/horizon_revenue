@@ -6,17 +6,6 @@
         <div class="flex justify-start mb-4">
           <UploadDropzone @data-parsed="handleDataParsed" />
         </div>
-        
-        <!-- Google Ads Placement (Somente para Trial) -->
-        <div v-if="isTrialUser" class="w-full bg-gray-200 border border-gray-300 text-gray-500 rounded-none flex flex-col items-center justify-center p-6 mb-4 shadow-inner text-sm text-center">
-          <span class="uppercase tracking-widest font-bold text-xs mb-2">Publicidade</span>
-          Você está usando a versão Gratuita. <a href="https://link.mercadopago.com.br/horizonrevenue" target="_blank" class="text-primaryRed font-bold hover:underline mx-1">Faça o Upgrade Premium</a> para remover anúncios e liberar a Inteligência Artificial.
-          
-          <!-- Mock do Slot do Google Ads -->
-          <div class="mt-4 w-full max-w-[728px] h-[90px] bg-gray-300 flex items-center justify-center border border-dashed border-gray-400">
-            [ Espaço Reservado para Google Adsense 728x90 ]
-          </div>
-        </div>
       </div>
 
       <!-- Main Chart Area -->
@@ -62,18 +51,37 @@
       </div>
     </div>
     
-    <AiInsightsModal :datasetContext="revenueData" />
+    <AiInsightsModal :datasetContext="revenueData" :isTrialUser="isTrialUser" />
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import RevenueChart from '@/components/RevenueChart.vue'
 import UploadDropzone from '@/components/UploadDropzone.vue'
 import AiInsightsModal from '@/components/AiInsightsModal.vue'
+import { supabase } from '@/lib/supabaseClient'
 
 const revenueData = ref([])
-const isTrialUser = ref(true) // Simulação. Mude para false para testar a remoção de ads.
+const isTrialUser = ref(true)
+
+onMounted(async () => {
+  const { data: { session } } = await supabase.auth.getSession()
+  
+  if (session?.user?.id) {
+    const { data: userData, error } = await supabase
+      .from('users')
+      .select('subscription_status')
+      .eq('id', session.user.id)
+      .single()
+
+    if (!error && userData) {
+      isTrialUser.value = userData.subscription_status !== 'premium' // Só não é trial se for estritamente 'premium'
+    } else {
+      isTrialUser.value = true
+    }
+  }
+})
 
 const handleDataParsed = (data) => {
   revenueData.value = data

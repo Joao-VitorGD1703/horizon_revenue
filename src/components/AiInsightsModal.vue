@@ -90,13 +90,17 @@ const props = defineProps({
   datasetContext: {
     type: Array,
     default: () => []
+  },
+  isTrialUser: {
+    type: Boolean,
+    default: true
   }
 })
 
 const isOpen = ref(false)
 const isLoading = ref(false)
 const inputRaw = ref('')
-const isTrialUser = ref(true) // Simulando um plano trial para o MVP. Em produção ler do Supabase user.subscription_status
+
 const messages = ref([
   { role: 'ai', content: 'Olá! Faça o upload dos seus dados e me pergunte sobre as melhores estratégias de precificação.' }
 ])
@@ -110,7 +114,7 @@ const sendMessage = async () => {
   isLoading.value = true
 
   try {
-    if (isTrialUser.value) {
+    if (props.isTrialUser) {
       setTimeout(() => {
         messages.value.push({ 
           role: 'ai', 
