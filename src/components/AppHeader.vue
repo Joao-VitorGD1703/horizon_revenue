@@ -18,7 +18,12 @@
     </div>
 
     <!-- Right Actions -->
-    <div class="flex items-center space-x-6 justify-end w-1/3">
+    <div class="flex items-center space-x-4 justify-end w-1/3">
+      <!-- Configurações -->
+      <router-link v-if="isLoggedIn && route.path !== '/'" to="/settings" class="text-white/90 hover:text-white transition-colors border border-transparent hover:border-red-400 p-2 rounded-none" title="Configurações">
+        <SettingsIcon class="w-5 h-5" />
+      </router-link>
+
       <!-- Sair da Conta (Logout) -->
       <button v-if="isLoggedIn && route.path !== '/'" @click="logout" class="text-white/90 hover:text-white transition-colors border border-red-400 hover:bg-red-700 p-2 rounded-none" title="Sair da conta">
         <LogOutIcon class="w-5 h-5" />
@@ -32,7 +37,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { Activity as ActivityIcon, LogOut as LogOutIcon } from 'lucide-vue-next'
+import { Activity as ActivityIcon, LogOut as LogOutIcon, Settings as SettingsIcon } from 'lucide-vue-next'
 import { useRouter, useRoute } from 'vue-router'
 import { supabase } from '@/lib/supabaseClient'
 
@@ -42,6 +47,7 @@ const route = useRoute()
 const userName = ref('')
 const hotelName = ref('')
 const isLoggedIn = ref(false)
+const isTrialUser = ref(false)
 
 const fetchUser = async () => {
   const { data: { session } } = await supabase.auth.getSession()
@@ -50,16 +56,19 @@ const fetchUser = async () => {
     isLoggedIn.value = true
     const { data: userData, error } = await supabase
       .from('users')
-      .select('name, hotel_name')
+      .select('name, hotel_name, subscription_status')
       .eq('id', session.user.id)
       .single()
 
     if (!error && userData) {
       userName.value = userData.name || ''
       hotelName.value = userData.hotel_name || ''
+      // Só não é trial se for garantidamente 'premium'
+      isTrialUser.value = userData.subscription_status !== 'premium'
     }
   } else {
     isLoggedIn.value = false
+    isTrialUser.value = false
     userName.value = ''
     hotelName.value = ''
   }
@@ -73,6 +82,7 @@ onMounted(() => {
       fetchUser()
     } else {
       isLoggedIn.value = false
+      isTrialUser.value = false
       userName.value = ''
       hotelName.value = ''
     }
@@ -82,6 +92,7 @@ onMounted(() => {
 const logout = async () => {
   await supabase.auth.signOut()
   isLoggedIn.value = false
+  isTrialUser.value = false
   userName.value = ''
   hotelName.value = ''
   router.push('/login')

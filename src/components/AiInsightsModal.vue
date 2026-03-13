@@ -69,9 +69,9 @@
             <p class="text-sm text-gray-600 mb-2">
               <span class="font-bold text-gray-800">Assinatura Premium Necessária</span> para enviar mensagens e conversar com a Inteligência Artificial.
             </p>
-            <a href="https://link.mercadopago.com.br/horizonrevenue" target="_blank" class="w-full bg-primaryRed text-white p-2 text-sm font-semibold rounded-none hover:bg-red-700 transition-colors shadow-sm inline-block">
-              Fazer Upgrade Agora
-            </a>
+            <button @click="handleUpgrade" class="w-full bg-primaryRed text-white p-2 text-sm font-semibold rounded-none hover:bg-red-700 transition-colors shadow-sm inline-block disabled:opacity-50" :disabled="isCheckoutLoading">
+              {{ isCheckoutLoading ? 'Redirecionando...' : 'Fazer Upgrade Agora' }}
+            </button>
           </div>
         </div>
 
@@ -85,6 +85,7 @@ import { ref } from 'vue'
 import { Bot as BotIcon, X as XIcon, Sparkles as SparklesIcon, Send as SendIcon } from 'lucide-vue-next'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { marked } from 'marked'
+import { supabase } from '@/lib/supabaseClient'
 
 const props = defineProps({
   datasetContext: {
@@ -99,6 +100,7 @@ const props = defineProps({
 
 const isOpen = ref(false)
 const isLoading = ref(false)
+const isCheckoutLoading = ref(false)
 const inputRaw = ref('')
 
 const messages = ref([
@@ -122,13 +124,13 @@ const sendMessage = async () => {
 ---
 Para liberar o **Horizon AI** e receber análises avançadas do seu RevPAR, você precisa de uma assinatura ativa.
 
-**Faça o upgrade agora por R$ 49,90/mês para desbloquear:**
+**Faça o upgrade agora por R$ 49,90 para desbloquear:**
 * Insights ilimitados
 * Análise de competidores
 * Recomendações de disparo estratégico
 
 <br>
-<a href="https://link.mercadopago.com.br/horizonrevenue" target="_blank" style="display:inline-block; background-color:#b616b6; color:white; padding:10px 20px; text-decoration:none; font-weight:bold;">Realizar Upgrade no Mercado Pago</a>` 
+**Clique no botão de Upgrade abaixo para prosseguir.**` 
         })
         isLoading.value = false
       }, 1000)
@@ -176,6 +178,43 @@ Regras de formatação (OBRIGATÓRIO):
     messages.value.push({ role: 'ai', content: `Erro ao conectar à inteligência artificial: ${error.message || 'Verifique o console para mais detalhes.'}` })
   } finally {
     isLoading.value = false
+  }
+}
+
+const handleUpgrade = async () => {
+  isCheckoutLoading.value = true
+  try {
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    if (sessionError || !session?.user?.id) {
+       console.error("User is not authenticated", sessionError)
+       alert("Erro de autenticação. Por favor, faça login novamente.")
+       isCheckoutLoading.value = false
+       return
+    }
+
+    const backendUrl = import.meta.env.VITE_STRIPE_BACKEND_URL || 'http://localhost:3000'
+    const response = await fetch(`${backendUrl}/api/stripe/create-checkout-session`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ userId: session.user.id })
+    })
+
+    const data = await response.json()
+
+    if (response.ok && data.url) {
+      // Redirect to Stripe Checkout
+      window.location.href = data.url
+    } else {
+      console.error("Failed to create checkout session:", data)
+      alert("Erro ao criar sessão de pagamento: " + (data.error || "Tente novamente."))
+    }
+  } catch (err) {
+    console.error("Payment request error:", err)
+    alert("Erro de rede ao tentar criar o pagamento.")
+  } finally {
+    isCheckoutLoading.value = false
   }
 }
 </script>
