@@ -1,0 +1,3 @@
+equisição cross-origin bloqueada: A diretiva Same Origin (mesma origem) não permite a leitura do recurso remoto em https://horizon-back-u0iy.onrender.com/api/gemini/generate (motivo: falha na requisição CORS). Código de status: (null).
+
+Gemini AI Error: TypeError: NetworkError when attempting to fetch resource.

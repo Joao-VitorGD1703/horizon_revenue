@@ -83,7 +83,7 @@
 <script setup>
 import { ref } from 'vue'
 import { Bot as BotIcon, X as XIcon, Sparkles as SparklesIcon, Send as SendIcon } from 'lucide-vue-next'
-import { GoogleGenerativeAI } from '@google/generative-ai'
+
 import { marked } from 'marked'
 import { supabase } from '@/lib/supabaseClient'
 
@@ -137,35 +137,20 @@ Para liberar o **Horizon AI** e receber análises avançadas do seu RevPAR, voc�
       return
     }
 
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY
-    if (!apiKey || apiKey === 'coloque_sua_chave_aqui') {
-      messages.value.push({ role: 'ai', content: 'Por favor, configure a sua VITE_GEMINI_API_KEY no arquivo .env na raiz do projeto para que eu possa funcionar!' });
-      isLoading.value = false;
-      return;
+    const backendUrl = import.meta.env.VITE_STRIPE_BACKEND_URL || 'http://localhost:3000'
+
+    const geminiResponse = await fetch(`${backendUrl}/api/gemini/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userMsg, datasetContext: props.datasetContext })
+    })
+
+    if (!geminiResponse.ok) {
+      const errData = await geminiResponse.json().catch(() => ({}))
+      throw new Error(errData.error || `Erro HTTP ${geminiResponse.status}`)
     }
 
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" }); // Fast and cheap model suitable for tasks
-
-    const dataContext = JSON.stringify(props.datasetContext)
-    const prompt = `Você é um especialista em Revenue Management Hoteleiro focado na otimização do RevPAR (Revenue Per Available Room).
-O usuário forneceu esta tabela de dados JSON contendo as datas, o preço atual do usuário e o preço de 2 concorrentes principais (A e B): 
-${dataContext}
-
-Pergunta correspondente a esses dados: "${userMsg}"
-
-Você deve redigir um relatório analítico curto, altamente profissional e estruturado.
-Regras de formatação (OBRIGATÓRIO):
-1. Comece com um cabeçalho H3 (###) contendo um título resumo da análise.
-2. Separe cada tópico ou mudança de assunto importante com uma linha horizontal (use ---).
-3. Use parágrafos curtos.
-4. Destaque datas e dados numéricos sempre em **negrito**.
-5. Se listar sugestões ou pontos de atenção, use sempre Bullet Points.
-6. Seja direto, como um verdadeiro consultor sênior de Revenue Management hoteleiro.`;
-
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const { text } = await geminiResponse.json();
     const formattedHtmlText = marked.parse(text)
 
     messages.value.push({ 
