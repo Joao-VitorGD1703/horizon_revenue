@@ -62,6 +62,79 @@
       </div>
     </section>
 
+    <!-- O que fazer após criar a conta -->
+    <section class="py-20 px-6 bg-white border-b border-gray-200">
+      <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12">
+        <div class="md:w-1/2">
+          <h2 class="text-3xl font-bold text-gray-900 mb-6">O que você fará após criar a conta?</h2>
+          <p class="text-lg text-gray-600 mb-6 leading-relaxed">
+            Assim que acessar a plataforma, você poderá utilizar imediatamente a <strong>Geração de Gráfico de Posicionamento</strong> para analisar seu hotel.
+          </p>
+          <ul class="space-y-4">
+            <li class="flex items-start">
+              <TrendingUpIcon class="w-6 h-6 text-primaryRed mt-1 mr-3 flex-shrink-0" />
+              <div>
+                <strong class="block text-gray-900">Visão Visual do Mercado</strong>
+                <span class="text-gray-600 block">Descubra de forma clara e intuitiva como suas tarifas se comparam visualmente às dos seus concorrentes.</span>
+              </div>
+            </li>
+            <li class="flex items-start">
+              <LineChartIcon class="w-6 h-6 text-primaryRed mt-1 mr-3 flex-shrink-0" />
+              <div>
+                <strong class="block text-gray-900">Análise de Posicionamento</strong>
+                <span class="text-gray-600 block">Identifique rapidamente seu posicionamento de mercado e ajuste sua estratégia com base em dados visuais reais.</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="md:w-1/2 bg-gray-50 p-8 border border-gray-200 shadow-sm rounded-none gap-4">
+           <div class="h-64 w-full flex flex-col items-center justify-center border-2 border-dashed border-gray-300 bg-white">
+             <LineChartIcon class="w-16 h-16 mb-4 opacity-50 text-primaryRed" />
+             <span class="font-semibold text-gray-600 text-lg">Gráfico de Posicionamento</span>
+             <span class="text-sm text-gray-500 mt-2">Visualize seu Hotel vs. Mercado</span>
+           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Agente de IA Section -->
+    <section class="py-20 px-6 bg-gray-50 border-b border-gray-200">
+      <div class="max-w-6xl mx-auto flex flex-col md:flex-row-reverse items-center gap-12">
+        <div class="md:w-1/2">
+          <h2 class="text-3xl font-bold text-gray-900 mb-6">Seu Próprio Agente IA de Precificação</h2>
+          <p class="text-lg text-gray-600 mb-6 leading-relaxed">
+            Elimine as dúvidas e os achismos. Nosso <strong>Agente de Inteligência Artificial</strong> entende o seu gráfico de posicionamento e fornece estratégias de receita impecáveis.
+          </p>
+          <ul class="space-y-4">
+            <li class="flex items-start">
+              <SparklesIcon class="w-6 h-6 text-primaryRed mt-1 mr-3 flex-shrink-0" />
+              <div>
+                <strong class="block text-gray-900">Sugestões Diretas de Tarifa</strong>
+                <span class="text-gray-600 block">Receba recomendações exatas de qual deveria ser o seu preço para maximizar o lucro todos os dias.</span>
+              </div>
+            </li>
+            <li class="flex items-start">
+              <CheckCircleIcon class="w-6 h-6 text-primaryRed mt-1 mr-3 flex-shrink-0" />
+              <div>
+                <strong class="block text-gray-900">Decisões Rápidas e Seguras</strong>
+                <span class="text-gray-600 block">Chegue ao melhor posicionamento de mercado de forma automática, economizando horas cruciais de análise tarifária.</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="md:w-1/2 bg-white p-8 border border-gray-200 shadow-sm rounded-none">
+           <div class="h-64 w-full flex flex-col items-center justify-center border-2 border-primaryRed bg-red-50 relative overflow-hidden">
+             <div class="absolute top-0 right-0 bg-primaryRed text-white text-xs font-bold px-3 py-1">IA Ativada</div>
+             <SparklesIcon class="w-16 h-16 mb-4 text-primaryRed" />
+             <span class="font-bold text-gray-900 text-xl text-center">Agente Horizon Revenue</span>
+             <span class="text-sm text-gray-700 mt-2 text-center px-4 italic leading-relaxed">
+               "Sugiro aumentar a tarifa do dia 15 em 12% devido à alta demanda do mercado local e ao seu histórico."
+             </span>
+           </div>
+        </div>
+      </div>
+    </section>
+
     <!-- ROI Section -->
     <section class="py-20 px-6 bg-white">
       <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
