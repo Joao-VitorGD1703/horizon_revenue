@@ -129,9 +129,18 @@ onMounted(async () => {
       throw new Error('Usuário não autenticado. Faça login para validar seu pagamento.')
     }
 
+    // Set subscription_ends_at to 30 days from now, matching the backend webhook logic.
+    // cancel_at_period_end is reset to false since this is a fresh payment.
+    const subscriptionEndsAt = new Date()
+    subscriptionEndsAt.setDate(subscriptionEndsAt.getDate() + 30)
+
     const { error } = await supabase
       .from('users')
-      .update({ subscription_status: 'premium' })
+      .update({
+        subscription_status: 'premium',
+        subscription_ends_at: subscriptionEndsAt.toISOString(),
+        cancel_at_period_end: false
+      })
       .eq('id', session.user.id)
 
     if (error) throw error

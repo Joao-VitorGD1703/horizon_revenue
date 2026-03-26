@@ -81,6 +81,7 @@ import RevenueChart from '@/components/RevenueChart.vue'
 import UploadDropzone from '@/components/UploadDropzone.vue'
 import AiInsightsModal from '@/components/AiInsightsModal.vue'
 import { supabase } from '@/lib/supabaseClient'
+import { hasActiveSubscription } from '@/lib/subscriptionUtils'
 
 const revenueData = ref([])
 const isTrialUser = ref(true)
@@ -142,12 +143,12 @@ onMounted(async () => {
   if (session?.user?.id) {
     const { data: userData, error } = await supabase
       .from('users')
-      .select('subscription_status')
+      .select('subscription_status, cancel_at_period_end, subscription_ends_at')
       .eq('id', session.user.id)
       .single()
 
     if (!error && userData) {
-      isTrialUser.value = userData.subscription_status !== 'premium' // Só não é trial se for estritamente 'premium'
+      isTrialUser.value = !hasActiveSubscription(userData)
     } else {
       isTrialUser.value = true
     }

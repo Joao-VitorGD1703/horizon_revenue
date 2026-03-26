@@ -70,11 +70,16 @@
         <div class="bg-gray-50 p-6 border border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center">
           <div>
             <p class="text-sm text-gray-600 font-semibold mb-1">Plano Atual</p>
-            <p class="text-lg flex items-center gap-2 font-bold" :class="subscriptionStatus === 'premium' ? 'text-primaryRed' : 'text-gray-800'">
-              {{ subscriptionStatus === 'premium' ? 'Premium ✦' : 'Trial' }}
+            <p class="text-lg flex items-center gap-2 font-bold" :class="isEffectivelyPremium ? 'text-primaryRed' : 'text-gray-800'">
+              {{ isEffectivelyPremium ? 'Premium ✦' : 'Trial' }}
+            </p>
+            <!-- Grace period notice -->
+            <p v-if="cancelAtPeriodEnd && subscriptionEndsAt" class="mt-1 text-sm text-amber-600 font-medium">
+              ⏳ Cancelamento agendado — acesso Premium até {{ formattedEndDate }}
             </p>
           </div>
-          <div class="mt-4 sm:mt-0" v-if="subscriptionStatus === 'premium'">
+          <!-- Only show cancel button if premium AND not already scheduled for cancellation -->
+          <div class="mt-4 sm:mt-0" v-if="isEffectivelyPremium && !cancelAtPeriodEnd">
             <button 
               type="button" 
               @click="cancelSubscription" 
@@ -95,9 +100,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '@/lib/supabaseClient'
+import { hasActiveSubscription, formatSubscriptionEndDate } from '@/lib/subscriptionUtils'
 
 const router = useRouter()
 
@@ -112,6 +118,18 @@ const isCancelling = ref(false)
 const successMessage = ref('')
 const errorMessage = ref('')
 const subscriptionStatus = ref('trial')
+const cancelAtPeriodEnd = ref(false)
+const subscriptionEndsAt = ref(null)
+
+const isEffectivelyPremium = computed(() =>
+  hasActiveSubscription({
+    subscription_status: subscriptionStatus.value,
+    cancel_at_period_end: cancelAtPeriodEnd.value,
+    subscription_ends_at: subscriptionEndsAt.value
+  })
+)
+
+const formattedEndDate = computed(() => formatSubscriptionEndDate(subscriptionEndsAt.value))
 
 onMounted(async () => {
   const { data: { session } } = await supabase.auth.getSession()
@@ -125,7 +143,7 @@ onMounted(async () => {
   try {
     const { data: userData, error } = await supabase
       .from('users')
-      .select('name, hotel_name, subscription_status')
+      .select('name, hotel_name, subscription_status, cancel_at_period_end, subscription_ends_at')
       .eq('id', session.user.id)
       .single()
 
@@ -135,6 +153,8 @@ onMounted(async () => {
       form.value.name = userData.name || ''
       form.value.hotel_name = userData.hotel_name || ''
       subscriptionStatus.value = userData.subscription_status || 'trial'
+      cancelAtPeriodEnd.value = userData.cancel_at_period_end || false
+      subscriptionEndsAt.value = userData.subscription_ends_at || null
     }
   } catch (err) {
     errorMessage.value = 'Erro ao buscar dados da conta. Verifique sua conexão.'
@@ -183,7 +203,7 @@ const updateProfile = async () => {
 }
 
 const cancelSubscription = async () => {
-  if (!confirm('Você tem certeza que deseja cancelar sua assinatura Premium? Você perderá acesso aos recursos exclusivos.')) return;
+  if (!confirm('Você tem certeza que deseja cancelar sua assinatura Premium? Você continuará com acesso até o fim do período pago.')) return;
 
   isCancelling.value = true;
   successMessage.value = '';
@@ -208,8 +228,15 @@ const cancelSubscription = async () => {
         throw new Error(data.error || data.message || 'Erro ao cancelar assinatura');
     }
 
-    subscriptionStatus.value = 'trial';
-    successMessage.value = 'Assinatura cancelada com sucesso. Você agora está no plano Trial.';
+    // Update local state — access remains until subscription_ends_at
+    cancelAtPeriodEnd.value = true;
+    if (data.subscription_ends_at) {
+      subscriptionEndsAt.value = data.subscription_ends_at;
+    }
+
+    successMessage.value = subscriptionEndsAt.value
+      ? `Cancelamento agendado. Seu acesso Premium vai até ${formatSubscriptionEndDate(subscriptionEndsAt.value)}.`
+      : 'Cancelamento agendado. Você manterá o acesso até o fim do período pago.';
     
   } catch (err) {
     errorMessage.value = err.message || 'Erro de rede ao tentar cancelar a assinatura.';
