@@ -129,10 +129,9 @@ onMounted(async () => {
       throw new Error('Usuário não autenticado. Faça login para validar seu pagamento.')
     }
 
-    // Set subscription_ends_at to 30 days from now, matching the backend webhook logic.
-    // cancel_at_period_end is reset to false since this is a fresh payment.
+    // Definir subscription_ends_at para exato 1 mês a frente da data atual.
     const subscriptionEndsAt = new Date()
-    subscriptionEndsAt.setDate(subscriptionEndsAt.getDate() + 30)
+    subscriptionEndsAt.setMonth(subscriptionEndsAt.getMonth() + 1)
 
     const { error } = await supabase
       .from('users')

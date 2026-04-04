@@ -40,6 +40,7 @@ import { ref, onMounted } from 'vue'
 import { Activity as ActivityIcon, LogOut as LogOutIcon, Settings as SettingsIcon } from 'lucide-vue-next'
 import { useRouter, useRoute } from 'vue-router'
 import { supabase } from '@/lib/supabaseClient'
+import { hasActiveSubscription } from '@/lib/subscriptionUtils'
 
 const router = useRouter()
 const route = useRoute()
@@ -56,15 +57,15 @@ const fetchUser = async () => {
     isLoggedIn.value = true
     const { data: userData, error } = await supabase
       .from('users')
-      .select('name, hotel_name, subscription_status')
+      .select('name, hotel_name, subscription_status, cancel_at_period_end, subscription_ends_at')
       .eq('id', session.user.id)
       .single()
 
     if (!error && userData) {
       userName.value = userData.name || ''
       hotelName.value = userData.hotel_name || ''
-      // Só não é trial se for garantidamente 'premium'
-      isTrialUser.value = userData.subscription_status !== 'premium'
+      
+      isTrialUser.value = !hasActiveSubscription(userData)
     }
   } else {
     isLoggedIn.value = false

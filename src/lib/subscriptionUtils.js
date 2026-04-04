@@ -15,14 +15,17 @@
 export function hasActiveSubscription(userData) {
   if (!userData) return false
 
-  const { subscription_status, cancel_at_period_end, subscription_ends_at } = userData
+  const { subscription_status, subscription_ends_at } = userData
 
-  // Active premium, no cancellation scheduled
-  if (subscription_status === 'premium' && !cancel_at_period_end) return true
+  // Se a data de término existir e estiver no futuro, o usuário mantém o acesso
+  // independentemente do status textual ser 'trial' ou 'premium' ou 'cancelled'
+  if (subscription_ends_at && new Date(subscription_ends_at) > new Date()) {
+    return true
+  }
 
-  // Cancelled but still within the paid grace period
-  if (cancel_at_period_end && subscription_ends_at) {
-    return new Date(subscription_ends_at) > new Date()
+  // Falback de segurança para contas antigas que sejam premium sem data
+  if (subscription_status === 'premium' && !subscription_ends_at) {
+    return true
   }
 
   return false

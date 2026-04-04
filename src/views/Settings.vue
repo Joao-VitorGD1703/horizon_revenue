@@ -73,9 +73,13 @@
             <p class="text-lg flex items-center gap-2 font-bold" :class="isEffectivelyPremium ? 'text-primaryRed' : 'text-gray-800'">
               {{ isEffectivelyPremium ? 'Premium ✦' : 'Trial' }}
             </p>
-            <!-- Grace period notice -->
-            <p v-if="cancelAtPeriodEnd && subscriptionEndsAt" class="mt-1 text-sm text-amber-600 font-medium">
+            <!-- Grace period notice (cancelled but active) -->
+            <p v-if="cancelAtPeriodEnd && subscriptionEndsAt && isEffectivelyPremium" class="mt-1 text-sm text-amber-600 font-medium">
               ⏳ Cancelamento agendado — acesso Premium até {{ formattedEndDate }}
+            </p>
+            <!-- Active period notice (premium and not cancelled) -->
+            <p v-else-if="!cancelAtPeriodEnd && subscriptionEndsAt && isEffectivelyPremium" class="mt-1 text-sm text-green-600 font-medium">
+              ✨ Acesso válido até {{ formattedEndDate }}
             </p>
           </div>
           <!-- Only show cancel button if premium AND not already scheduled for cancellation -->
