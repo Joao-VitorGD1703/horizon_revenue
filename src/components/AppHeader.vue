@@ -57,7 +57,7 @@ const fetchUser = async () => {
     isLoggedIn.value = true
     const { data: userData, error } = await supabase
       .from('users')
-      .select('name, hotel_name, subscription_status, cancel_at_period_end, subscription_ends_at')
+      .select('name, hotel_name, subscription_status, cancel_at_period_end, premium_until, is_active')
       .eq('id', session.user.id)
       .single()
 

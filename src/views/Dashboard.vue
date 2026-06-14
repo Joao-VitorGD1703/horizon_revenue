@@ -143,7 +143,7 @@ onMounted(async () => {
   if (session?.user?.id) {
     const { data: userData, error } = await supabase
       .from('users')
-      .select('subscription_status, cancel_at_period_end, subscription_ends_at')
+      .select('subscription_status, cancel_at_period_end, premium_until, is_active')
       .eq('id', session.user.id)
       .single()
 

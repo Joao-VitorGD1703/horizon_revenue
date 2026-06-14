@@ -124,12 +124,14 @@ const errorMessage = ref('')
 const subscriptionStatus = ref('trial')
 const cancelAtPeriodEnd = ref(false)
 const subscriptionEndsAt = ref(null)
+const isActive = ref(true)
 
 const isEffectivelyPremium = computed(() =>
   hasActiveSubscription({
     subscription_status: subscriptionStatus.value,
     cancel_at_period_end: cancelAtPeriodEnd.value,
-    subscription_ends_at: subscriptionEndsAt.value
+    premium_until: subscriptionEndsAt.value,
+    is_active: isActive.value
   })
 )
 
@@ -147,7 +149,7 @@ onMounted(async () => {
   try {
     const { data: userData, error } = await supabase
       .from('users')
-      .select('name, hotel_name, subscription_status, cancel_at_period_end, subscription_ends_at')
+      .select('name, hotel_name, subscription_status, cancel_at_period_end, premium_until, is_active')
       .eq('id', session.user.id)
       .single()
 
@@ -158,7 +160,8 @@ onMounted(async () => {
       form.value.hotel_name = userData.hotel_name || ''
       subscriptionStatus.value = userData.subscription_status || 'trial'
       cancelAtPeriodEnd.value = userData.cancel_at_period_end || false
-      subscriptionEndsAt.value = userData.subscription_ends_at || null
+      subscriptionEndsAt.value = userData.premium_until || null
+      isActive.value = userData.is_active !== false
     }
   } catch (err) {
     errorMessage.value = 'Erro ao buscar dados da conta. Verifique sua conexão.'

@@ -137,7 +137,7 @@ onMounted(async () => {
       .from('users')
       .update({
         subscription_status: 'premium',
-        subscription_ends_at: subscriptionEndsAt.toISOString(),
+        premium_until: subscriptionEndsAt.toISOString(),
         cancel_at_period_end: false
       })
       .eq('id', session.user.id)

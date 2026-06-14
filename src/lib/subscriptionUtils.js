@@ -15,16 +15,21 @@
 export function hasActiveSubscription(userData) {
   if (!userData) return false
 
-  const { subscription_status, subscription_ends_at } = userData
+  const { subscription_status, premium_until, is_active } = userData
+
+  // Se a conta estiver desativada, revoga acesso
+  if (is_active === false) {
+    return false
+  }
 
   // Se a data de término existir e estiver no futuro, o usuário mantém o acesso
   // independentemente do status textual ser 'trial' ou 'premium' ou 'cancelled'
-  if (subscription_ends_at && new Date(subscription_ends_at) > new Date()) {
+  if (premium_until && new Date(premium_until) > new Date()) {
     return true
   }
 
-  // Falback de segurança para contas antigas que sejam premium sem data
-  if (subscription_status === 'premium' && !subscription_ends_at) {
+  // Fallback de segurança para contas que sejam premium sem data
+  if (subscription_status === 'premium') {
     return true
   }
 
