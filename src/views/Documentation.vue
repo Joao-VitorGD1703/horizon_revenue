@@ -48,12 +48,12 @@
               </thead>
               <tbody class="text-gray-600">
                 <tr class="border-b border-gray-100">
-                  <td class="py-3 pr-6 font-mono text-primaryRed font-semibold">Data</td>
+                  <td class="py-3 pr-6 font-mono text-primaryRed font-semibold">Datas</td>
                   <td class="py-3 pr-6"><code class="bg-gray-100 px-2 py-0.5 rounded text-xs">AAAA-MM-DD</code></td>
                   <td class="py-3">Data da tarifa no formato ISO. Ex: <code class="bg-gray-50 px-1 text-xs">2026-03-15</code></td>
                 </tr>
                 <tr class="border-b border-gray-100">
-                  <td class="py-3 pr-6 font-mono text-primaryRed font-semibold">Meu Preço</td>
+                  <td class="py-3 pr-6 font-mono text-primaryRed font-semibold">Meu Hotel</td>
                   <td class="py-3 pr-6"><code class="bg-gray-100 px-2 py-0.5 rounded text-xs">número</code></td>
                   <td class="py-3">Sua tarifa praticada naquela data. Use ponto como separador decimal.</td>
                 </tr>
@@ -68,7 +68,7 @@
 
           <h3 id="exemplo" class="text-lg font-bold text-gray-900 mb-3 scroll-mt-8">Exemplo de arquivo</h3>
           <div class="bg-gray-900 rounded-none p-4 mb-4">
-            <pre class="text-green-400 text-sm overflow-x-auto font-mono leading-relaxed">Data,Meu Preço,Hotel Vizinho,Pousada Central
+            <pre class="text-green-400 text-sm overflow-x-auto font-mono leading-relaxed">Datas,Meu Hotel,Hotel Vizinho,Pousada Central
 2026-03-01,150,145,160
 2026-03-02,155,145,150
 2026-03-03,180,170,175
@@ -183,7 +183,7 @@
                 <span class="text-gray-400 group-open:rotate-180 transition-transform">▼</span>
               </summary>
               <p class="mt-3 text-gray-600 text-sm leading-relaxed">
-                Na tabela de dados brutos do Dashboard, a coluna "Meu Preço" é colorida de acordo com sua posição em relação à média dos concorrentes:
+                Na tabela de dados brutos do Dashboard, a coluna "Meu Hotel" é colorida de acordo com sua posição em relação à média dos concorrentes:
               </p>
               <ul class="mt-2 space-y-1 text-sm">
                 <li><span class="text-blue-600 font-semibold">Azul</span> — Sua tarifa está mais de 20% acima da média. Risco de perder ocupação.</li>

@@ -87,7 +87,7 @@
             <span class="bg-primaryRed text-white text-sm font-bold w-7 h-7 flex items-center justify-center rounded-full flex-shrink-0 mt-0.5 mr-4">1</span>
             <div>
               <strong class="block text-gray-900">Prepare sua planilha CSV</strong>
-              <span class="text-gray-600 text-sm">Organize seus dados com as colunas: <code class="bg-gray-100 px-1 text-xs">Data</code>, <code class="bg-gray-100 px-1 text-xs">Meu Preço</code> e uma coluna para cada concorrente. Consulte a <router-link to="/docs" class="text-primaryRed hover:underline">documentação de formatação</router-link> para o formato exato.</span>
+              <span class="text-gray-600 text-sm">Organize seus dados com as colunas: <code class="bg-gray-100 px-1 text-xs">Datas</code>, <code class="bg-gray-100 px-1 text-xs">Meu Hotel</code> e uma coluna para cada concorrente. Consulte a <router-link to="/docs" class="text-primaryRed hover:underline">documentação de formatação</router-link> para o formato exato.</span>
             </div>
           </li>
           <li class="flex items-start">

@@ -45,13 +45,31 @@
 
       <!-- Data Table Area -->
       <div v-if="revenueData.length > 0" class="bg-white p-6 border border-gray-200 shadow-sm w-full flex flex-col">
-        <h2 class="text-lg font-bold text-gray-800 mb-4">Dados Brutos</h2>
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+          <h2 class="text-lg font-bold text-gray-800">Dados Brutos</h2>
+          
+          <!-- Legenda de Cores -->
+          <div class="flex flex-wrap gap-4 text-sm font-medium">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-blue-600"></span>
+              <span class="text-gray-600">Mais de 20% acima da média</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-green-600"></span>
+              <span class="text-gray-600">Próximo da média</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-red-600"></span>
+              <span class="text-gray-600">Mais de 15% abaixo da média</span>
+            </div>
+          </div>
+        </div>
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse min-w-max">
             <thead>
               <tr class="border-b-2 border-gray-100 text-gray-700 bg-gray-50">
-                <th class="p-3 font-semibold whitespace-nowrap">Data</th>
-                <th class="p-3 font-semibold text-primaryRed">Meu Preço</th>
+                <th class="p-3 font-semibold whitespace-nowrap">Datas</th>
+                <th class="p-3 font-semibold text-primaryRed">Meu Hotel</th>
                 <th v-for="comp in competitors" :key="comp" class="p-3 font-semibold text-gray-500">{{ comp }}</th>
               </tr>
             </thead>
@@ -61,8 +79,8 @@
                 :key="index"
                 class="border-b border-gray-100 hover:bg-gray-50 transition-colors"
               >
-                <td class="p-3 font-medium">{{ row.Data }}</td>
-                <td class="p-3 font-bold" :class="getPriceClass(row)">R$ {{ row['Meu Preço'] }}</td>
+                <td class="p-3 font-medium">{{ formatDate(row.datas) }}</td>
+                <td class="p-3 font-bold" :class="getPriceClass(row)">R$ {{ row['meu hotel'] }}</td>
                 <td v-for="comp in competitors" :key="comp" class="p-3">R$ {{ row[comp] }}</td>
               </tr>
             </tbody>
@@ -98,8 +116,8 @@ const paginatedChartData = computed(() => {
 
 const periodLabel = computed(() => {
   if (paginatedChartData.value.length === 0) return ''
-  const first = paginatedChartData.value[0].Data
-  const last = paginatedChartData.value[paginatedChartData.value.length - 1].Data
+  const first = paginatedChartData.value[0].datas
+  const last = paginatedChartData.value[paginatedChartData.value.length - 1].datas
   return `${first} a ${last}`
 })
 
@@ -113,13 +131,34 @@ const nextPage = () => {
   }
 }
 
+const formatDate = (val) => {
+  if (!val) return '';
+  const str = String(val);
+  
+  if (str.includes('-')) {
+    const parts = str.split('-');
+    if (parts.length === 3 && parts[0].length === 4) {
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+  }
+  
+  const d = new Date(str);
+  if (!isNaN(d.getTime())) {
+    const day = String(d.getUTCDate()).padStart(2, '0');
+    const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const year = d.getUTCFullYear();
+    return `${day}/${month}/${year}`;
+  }
+  return str;
+};
+
 const competitors = computed(() => {
   if (revenueData.value.length === 0) return []
-  return Object.keys(revenueData.value[0]).filter(k => k !== 'Data' && k !== 'Meu Preço')
+  return Object.keys(revenueData.value[0]).filter(k => k !== 'datas' && k !== 'meu hotel')
 })
 
 const getPriceClass = (row) => {
-  const myPrice = Number(row['Meu Preço'])
+  const myPrice = Number(row['meu hotel'])
   if (isNaN(myPrice)) return 'text-gray-900'
 
   const compPrices = competitors.value.map(c => Number(row[c])).filter(p => !isNaN(p))

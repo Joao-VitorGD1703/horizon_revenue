@@ -35,6 +35,11 @@ const processFile = (file) => {
     header: true,
     dynamicTyping: true,
     skipEmptyLines: true,
+    transformHeader: (header, index) => {
+      if (index === 0) return 'datas'
+      if (index === 1) return 'meu hotel'
+      return header.toLowerCase().trim()
+    },
     complete: (results) => {
       emit('data-parsed', results.data)
     }

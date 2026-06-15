@@ -44,18 +44,18 @@ const chartData = computed(() => {
     return { labels: [], datasets: [] }
   }
 
-  const labels = props.dataset.map(row => row.Data)
+  const labels = props.dataset.map(row => row.datas)
   
-  // Extract all keys except 'Data' and 'Meu Preço'
-  const competitors = Object.keys(props.dataset[0]).filter(k => k !== 'Data' && k !== 'Meu Preço')
+  // Extract all keys except 'datas' and 'meu hotel'
+  const competitors = Object.keys(props.dataset[0]).filter(k => k !== 'datas' && k !== 'meu hotel')
 
   // Colors mapping for dynamically assigned competitors
   const compColors = ['#9ca3af', '#60a5fa', '#34d399', '#fbbf24', '#a78bfa', '#f472b6', '#fb923c']
 
   const datasets = [
     {
-      label: 'Meu Preço',
-      data: props.dataset.map(row => row['Meu Preço']),
+      label: 'Meu Hotel',
+      data: props.dataset.map(row => row['meu hotel']),
       borderColor: '#dc2626', // Primary Red
       backgroundColor: '#dc2626',
       borderWidth: 3,
